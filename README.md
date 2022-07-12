@@ -25,3 +25,4 @@ Reference
 - https://github.com/jingyunliang/swinir
 - https://github.com/clovaai/deep-text-recognition-benchmark
 - https://github.com/aqntks/Easy-Yolo-OCR
+- https://github.com/ultralytics/yolov5
