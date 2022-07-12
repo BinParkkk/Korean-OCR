@@ -1,6 +1,6 @@
 # OCR-yolov5-SwinIR-STARNet
 OCR(Korean)
-
+한국어 
 
 ## Run demo
 
