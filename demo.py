@@ -36,10 +36,10 @@ def yolov5s_detect(yolo_model_path, image) :
       url = "https://drive.google.com/uc?id=1vmHeEb1QSjGZoSzu0tolPaUo0CtUnwaD"
       output = "yolov5l6_detection.pt"
 
-      if not os.path.exists('/content/OCR-yolov5-SwinIR-STARNet/pt_models/'+output):
+      if not os.path.exists('/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output):
         
         yolo_model_path = gdown.download(url, './pt_models/'+output, quiet=False)
-      yolo_model_path = '/content/OCR-yolov5-SwinIR-STARNet/pt_models/'+output
+      yolo_model_path = '/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output
       
     else:
       yolo_model_path = yolo_model_path
@@ -86,10 +86,10 @@ def sr(sr_model_path, image, scale = 2, window_size=8):
       url = "https://drive.google.com/uc?id=152blAUGOsBbnUpatr3ielqHDSy306uxj"
       output = "003_realSR_BSRGAN_DFO_s64w8_SwinIR-M_x2_GAN"
 
-      if not os.path.exists('/content/OCR-yolov5-SwinIR-STARNet/pt_models/'+output):
+      if not os.path.exists('/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output):
         
         sr_model_path = gdown.download(url, './pt_models/'+output, quiet=False)
-      sr_model_path = '/content/OCR-yolov5-SwinIR-STARNet/pt_models/'+output
+      sr_model_path = '/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output
       
         
     else:
@@ -140,10 +140,10 @@ def itt_model(itt_model_path, character):
         url = "https://drive.google.com/uc?id=1LnZOhv1NRy8pFLlRbp90tUW49rwg9hhE"
         output = "best_recognition.pth"
 
-        if not os.path.exists('/content/OCR-yolov5-SwinIR-STARNet/pt_models/'+output):
+        if not os.path.exists('/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output):
     
             itt_model_path = gdown.download(url, './pt_models/'+output, quiet=False)
-        itt_model_path = '/content/OCR-yolov5-SwinIR-STARNet/pt_models/'+output
+        itt_model_path = '/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output
     else:
         itt_model_path = itt_model_path
     
@@ -221,10 +221,10 @@ def img_blur_text(font_path, image, bboxs, texts, mag=30):
       url = "https://drive.google.com/uc?id=1KZQ4Ys4SnJEjSWw9bcik_WRkt55ylJuS"
       output = "NanumBarunGothic.ttf"
 
-      if not os.path.exists('/content/OCR-yolov5-SwinIR-STARNet/pt_models/'+output):
+      if not os.path.exists('/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output):
         
         font_path = gdown.download(url, './pt_models/'+output, quiet=False)
-      font_path = '/content/OCR-yolov5-SwinIR-STARNet/pt_models/'+output
+      font_path = '/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output
       
     else:
       font_path = font_path
@@ -266,7 +266,7 @@ def img_blur_text(font_path, image, bboxs, texts, mag=30):
 
 def demo(opt):
 
-    result_path = '/content/OCR-yolov5-SwinIR-STARNet/results'
+    result_path = '/content/Korean-OCR-YOLOv5-SwinIR-STARNet/results'
     
     try:
         if not os.path.exists(result_path):
