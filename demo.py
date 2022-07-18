@@ -32,8 +32,8 @@ def yolov5l6_detect(yolo_model1_path, yolo_model2_path, image) :
 
     if yolo_model1_path is None :
 
-        url = "https://drive.google.com/uc?id=1-NVrIwsA7pO1q9cSsHiToLqQXvFSMlGC"
-        output = "yolov5l6_detection1.pt"
+        url = "https://drive.google.com/uc?id=1-gCmksSNAT2amukFMBTM_k7jnZWIw89B"
+        output = "yolov5l6_detection_1.pt"
 
         if not os.path.exists('/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output):
 
@@ -49,7 +49,7 @@ def yolov5l6_detect(yolo_model1_path, yolo_model2_path, image) :
     if yolo_model2_path is None:
       
         url = "https://drive.google.com/uc?id=1vmHeEb1QSjGZoSzu0tolPaUo0CtUnwaD"
-        output = "yolov5l6_detection.pt"
+        output = "yolov5l6_detection_2.pt"
 
         if not os.path.exists('/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output):
             
@@ -61,14 +61,17 @@ def yolov5l6_detect(yolo_model1_path, yolo_model2_path, image) :
 
     model1 = torch.hub.load('ultralytics/yolov5', 'custom', path=yolo_model1_path)
     model2 = torch.hub.load('ultralytics/yolov5', 'custom', path=yolo_model2_path)
-    model2.conf = 0.004
-    model2.iou = 0.01
+    model1.iou = 0.01
+    model2.conf = 0.5
+    # model2.conf = 0.1
+    # model2.iou = 0.01
 
     data_img = image
 
     results1 = model1(data_img, size = 1280)
 
     crop_images = []
+
     for idx in range(len(results1.xyxy[0])) :
 
         xy = results1.xyxy[0][idx].cpu().numpy()
@@ -89,35 +92,21 @@ def yolov5l6_detect(yolo_model1_path, yolo_model2_path, image) :
  
         crop_images.append(crop_image)
 
+        x1 = int(xy[0])
+        y1 = int(xy[1])
+        x2 = int(xy[2])
+        y2 = int(xy[3])
 
-    img_blur_detection = image
-
-    for idx in range(len(results1.xyxy[0])) :
+        roi = data_img[y1:y2, x1:x2]
+        roi = cv2.blur(roi, (100, 100))
         
-        xy = results1.xyxy[0][idx].cpu().numpy()
-
-        x_min = xy[0]
-        y_min = xy[1]
-        w = (xy[2] - xy[0]) 
-        h = (xy[3] - xy[1])
-
-        x_min = int(x_min)
-        y_min = int(y_min)
-        w = int(w)
-        h = int(h)
-
-        roi = img_blur_detection[y_min:y_min+h, x_min:x_min+w]
-        roi = cv2.blur(roi, (90, 90))
-        
-        img[y_min:y_min+h, x_min:x_min+w] = roi
-        img_blur_detection = img
-
- 
+        data_img[y1:y2, x1:x2] = roi
+        data_img = data_img
 
 
-    results2 = model2(img_blur_detection, size = 1280)
+    results2 = model2(data_img, size = 1280)
 
-    print('탐지된 이미지의 수 : ',len(results1.xyxy[0])+len(results2.xyxy[0]))
+    print('탐지된 이미지의 수 : ',len(results1.xyxy[0]),len(results2.xyxy[0]))
     
     for idx in range(len(results2.xyxy[0])) :
 
@@ -139,9 +128,6 @@ def yolov5l6_detect(yolo_model1_path, yolo_model2_path, image) :
  
         crop_images.append(crop_image)
 
-
-
-  
         
     return crop_images, torch.cat([results1.xyxy[0], results2.xyxy[0]], dim=0)
 
@@ -281,7 +267,7 @@ def translation(word):
     return test3
 
 
-
+  
 def img_blur_text(font_path, image, bboxs, texts, mag=30):
   
     if font_path is None:
@@ -296,40 +282,41 @@ def img_blur_text(font_path, image, bboxs, texts, mag=30):
       
     else:
       font_path = font_path
-    
-    img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    
+
+
+
+    target = Image.fromarray(image)
+
     for bbox, text in zip(bboxs, texts):
+
         x = int(bbox[0])
         y = int(bbox[1])
         x_ = int(bbox[2])
         y_ = int(bbox[3])
 
-        roi = img[y:y_, x:x_]
-        roi = cv2.blur(roi, (mag, mag))
-        img[y:y_, x:x_] = roi
-
-        img_p = Image.fromarray(img)
-
-        text_size = int((bbox[3]-bbox[1])*0.7)
-
-        # 글자 위치
-        xs, ys = int(x*1.02), int(y*1.02)
-        text_pos = (xs, ys)
-
-        # 글자 타입 ( 글자 폰트, 글자 크기)
-        font_type = ImageFont.truetype(font_path, text_size)
-    
-        # 글자색
-        color = (0,0,0)
-
-        draw = ImageDraw.Draw(img_p)
-        output = translation(text[0])
-        draw.text(text_pos, output, color, font=font_type)
+        text_size = 15
+        font = ImageFont.truetype(font_path, text_size)
+        # 이미지 사이즈 지정
+        text_width = int(x_-x)
+        text_height = int(y_-y)
         
-        img = np.array(img_p) 
-        # 텍스트가 쓰여진 이미지를 다시 배열로 바꿔서 for문을 돌 수 있게 사용
+        # 이미지 객체 생성 (배경 검정)
+        canvas = Image.new('RGB', (text_width, text_height), "white")
+        
+        # 그리기 (폰트 색: 하양)
+        draw = ImageDraw.Draw(canvas)
+        text = str(text)
+        text = text.replace('[','').replace(']','').replace("'","")
+        w, h = font.getsize(text)
+        text = translation(text)
+        draw.text(((text_width-w)/8.0,(text_height-h)/8.0), text, 'black', font)
+    
+        # 넣을 이미지
+        add_image = canvas
 
+        target.paste(im = add_image, box =(int(x),int(y)))
+    
+    img = np.array(target)
     return img
 
 def demo(opt):
@@ -349,7 +336,7 @@ def demo(opt):
         img = cv2.imread(opt.image_folder+'/'+file_name)
         # img_h_, img_w_ = img.shape[0], img.shape[1]
         start = time.time()
-        crop_images, bboxs = yolov5s_detect(opt.yolo_model_path, image = img)
+        crop_images, bboxs = yolov5l6_detect(opt.yolo_model1_path, opt.yolo_model2_path, image = img)
         end = time.time()
         text_detection = (end-start)
         super_resolution = 0
@@ -379,7 +366,8 @@ def demo(opt):
 
             end_r = time.time()
             text_recognition+=end_r-start_r
-           
+            text = str(text)
+            text = text.replace('[','').replace(']','').replace("'","")
             texts.append(text)
         
         img_t = img_blur_text(opt.font_path, image=img, bboxs=bboxs, texts=texts)
@@ -412,7 +400,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--sr_model_path', type=str, default=None, help='')
     parser.add_argument('--itt_model_path', type=str, default=None, help='')
-    parser.add_argument('--yolo_model_path', type=str, default=None, help='')
+    parser.add_argument('--yolo_model1_path', type=str, default=None, help='')
+    parser.add_argument('--yolo_model2_path', type=str, default=None, help='')
     
     parser.add_argument('--font_path', type=str, default=None, help='')
 
