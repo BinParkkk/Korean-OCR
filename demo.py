@@ -28,35 +28,50 @@ from model import TPS_SpatialTransformerNetwork, LocalizationNetwork, GridGenera
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+def yolov5l6_detect(yolo_model1_path, yolo_model2_path, image) :
 
-def yolov5s_detect(yolo_model_path, image) :
+    if yolo_model1_path is None :
 
-    if yolo_model_path is None:
+        url = "https://drive.google.com/uc?id=1-NVrIwsA7pO1q9cSsHiToLqQXvFSMlGC"
+        output = "yolov5l6_detection1.pt"
+
+        if not os.path.exists('/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output):
+
+            yolo_model1_path = gdown.download(url, './pt_models/'+output, quiet=False)
+        yolo_model1_path = '/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output
+
+    else:
+        yolo_model1_path = yolo_model1_path
+
+
+
+
+    if yolo_model2_path is None:
       
-      url = "https://drive.google.com/uc?id=1vmHeEb1QSjGZoSzu0tolPaUo0CtUnwaD"
-      output = "yolov5l6_detection.pt"
+        url = "https://drive.google.com/uc?id=1vmHeEb1QSjGZoSzu0tolPaUo0CtUnwaD"
+        output = "yolov5l6_detection.pt"
 
-      if not os.path.exists('/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output):
-        
-        yolo_model_path = gdown.download(url, './pt_models/'+output, quiet=False)
-      yolo_model_path = '/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output
+        if not os.path.exists('/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output):
+            
+            yolo_model2_path = gdown.download(url, './pt_models/'+output, quiet=False)
+        yolo_model2_path = '/content/Korean-OCR-YOLOv5-SwinIR-STARNet/pt_models/'+output
       
     else:
-      yolo_model_path = yolo_model_path
+        yolo_model2_path = yolo_model2_path
 
-    model = torch.hub.load('ultralytics/yolov5', 'custom', path=yolo_model_path)
-    model.conf = 0.004
-    model.iou = 0.01
+    model1 = torch.hub.load('ultralytics/yolov5', 'custom', path=yolo_model1_path)
+    model2 = torch.hub.load('ultralytics/yolov5', 'custom', path=yolo_model2_path)
+    model2.conf = 0.004
+    model2.iou = 0.01
 
     data_img = image
 
-    results = model(data_img, size = 960)
-    print('탐지된 이미지의 수 : ',len(results.xyxy[0]))
-    
-    crop_images = []
-    for idx in range(len(results.xyxy[0])) :
+    results1 = model1(data_img, size = 1280)
 
-        xy = results.xyxy[0][idx].cpu().numpy()
+    crop_images = []
+    for idx in range(len(results1.xyxy[0])) :
+
+        xy = results1.xyxy[0][idx].cpu().numpy()
 
         start = (int(xy[1]),int(xy[0])) # y, x좌표 min값
         end = (int(xy[3]),int(xy[2])) # y, x좌표 max값
@@ -73,9 +88,62 @@ def yolov5s_detect(yolo_model_path, image) :
         crop_image = np.asarray(output)
  
         crop_images.append(crop_image)
+
+
+    img_blur_detection = image
+
+    for idx in range(len(results1.xyxy[0])) :
+        
+        xy = results1.xyxy[0][idx].cpu().numpy()
+
+        x_min = xy[0]
+        y_min = xy[1]
+        w = (xy[2] - xy[0]) 
+        h = (xy[3] - xy[1])
+
+        x_min = int(x_min)
+        y_min = int(y_min)
+        w = int(w)
+        h = int(h)
+
+        roi = img_blur_detection[y_min:y_min+h, x_min:x_min+w]
+        roi = cv2.blur(roi, (90, 90))
+        
+        img[y_min:y_min+h, x_min:x_min+w] = roi
+        img_blur_detection = img
+
+ 
+
+
+    results2 = model2(img_blur_detection, size = 1280)
+
+    print('탐지된 이미지의 수 : ',len(results1.xyxy[0])+len(results2.xyxy[0]))
+    
+    for idx in range(len(results2.xyxy[0])) :
+
+        xy = results2.xyxy[0][idx].cpu().numpy()
+
+        start = (int(xy[1]),int(xy[0])) # y, x좌표 min값
+        end = (int(xy[3]),int(xy[2])) # y, x좌표 max값
+
+        output = np.zeros((end[0]-start[0], end[1]-start[1], 3), np.uint8)
+        # print(output.shape)
+
+        for y in range(output.shape[1]):
+            for x in range(output.shape[0]):
+                xp, yp = x + start[0], y+start[1]
+                output[x,y] = image[xp,yp]
+
+        # crop image
+        crop_image = np.asarray(output)
+ 
+        crop_images.append(crop_image)
+
+
+
   
         
-    return crop_images, results.xyxy[0]
+    return crop_images, torch.cat([results1.xyxy[0], results2.xyxy[0]], dim=0)
 
 
 
