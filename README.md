@@ -2,6 +2,10 @@
 OCR(Korean)
 한국어 
 
+1. 메뉴판 디텍션 이후에 다시 다른 한글 디텍션
+2. 세로로 된 한글은 아직 recognition 학습 안 함
+
+
 ## Run demo
 
 - Requirement
