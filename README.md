@@ -1,10 +1,13 @@
 # OCR-yolov5-SwinIR-STARNet
-OCR(Korean)
-한국어 
+OCR(Korean) 한국어 메뉴판 OCR
+   
+   
 
-1. 메뉴판 디텍션 이후에 다시 다른 한글 디텍션
-2. 세로로 된 한글은 아직 recognition 학습 안 함
+* 기존 프로젝트 이후 개선 방향
 
+  * ~~메뉴판 디텍션 이후에 다시 다른 한글 디텍션 (2stage)~~
+  * 세로로 되어있는 한글 학습
+  * 기울어진 메뉴판 인식
 
 ## Run demo
 
