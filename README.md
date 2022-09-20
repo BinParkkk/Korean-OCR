@@ -10,6 +10,7 @@ OCR(Korean) 한국어 메뉴판 OCR
   * ~~세로로 되어있는 한글 Detection~~
   * 세로로 되어있는 한글 Recognition
   * 기울어진 메뉴판 인식
+  * 성능 향상
 
 ## Run demo
 
@@ -24,7 +25,8 @@ OCR(Korean) 한국어 메뉴판 OCR
 ```
 - Result : The result will be saved in './results'
 
-* 간판 (weight 루트값 수정 필요)
+* 간판 (weight 루트값 수정 필요)   
+
 ![화면 캡처 2022-07-01 132858](https://user-images.githubusercontent.com/106142675/176823623-75577035-8665-422f-98d6-e2c7ef6a6585.png)      ![화면 캡처 2022-07-01 132914](https://user-images.githubusercontent.com/106142675/176823644-3c561dd8-2f12-4491-becf-27a649b7b623.png)
 
 ![화면 캡처 2022-07-01 132928](https://user-images.githubusercontent.com/106142675/176823718-f1feb1e7-1b06-470a-9953-504434193c87.png)
