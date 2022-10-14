@@ -24,6 +24,7 @@ OCR(Korean) 한국어 메뉴판 OCR
 ```
 %cd /content/Korean-OCR-YOLOv5-SwinIR-STARNet
 !CUDA_VISIBLE_DEVICES=0 python3 demo.py --image_folder /content/OCR-yolov5-SwinIR-STARNet/img_demo
+가중치 수정중
 ```
 - Result : The result will be saved in './results'
 
